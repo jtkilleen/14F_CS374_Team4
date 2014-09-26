@@ -1,3 +1,3 @@
 get '/' do
-	"Hello Jon David"
+	"Hi Jonathan"
 end
