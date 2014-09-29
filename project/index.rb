@@ -1,3 +1,6 @@
+require 'csv'
+
 get '/' do
-	"Hi Jonathan"
+	@var = "jonathan"
+	erb :home
 end
