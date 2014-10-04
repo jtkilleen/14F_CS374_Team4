@@ -1,7 +1,8 @@
 require 'rubygems'
 require 'bundler'
-
+require 'sinatra'
 Bundler.require
 
-require './index'
+require File.expand_path '../index.rb', __FILE__
+
 run Sinatra::Application
