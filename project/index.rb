@@ -5,6 +5,6 @@ get '/' do
 	erb :home
 end
 
-get '/tyler' do
-	"Tyler sucks"
+get '/login' do
+	erb :login
 end
