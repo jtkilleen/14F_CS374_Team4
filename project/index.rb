@@ -1,6 +1,10 @@
 require 'csv'
 
 get '/' do
-	@var = "jonathan"
+	@var = "Jonathan Nix"
 	erb :home
+end
+
+get '/jonathan' do
+	erb :jonathan
 end
