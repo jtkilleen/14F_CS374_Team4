@@ -1,4 +1,4 @@
-Given(/^the username "([^"]*)"$/) do |input|
+Given(/^the username "([^"]*)" exists$/) do |input|
 	@input = input
 end
 
