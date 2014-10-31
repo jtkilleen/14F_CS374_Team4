@@ -1,0 +1,6 @@
+development:
+  sessions:
+    default:
+      database: scheduler
+      hosts:
+        - localhost:27017

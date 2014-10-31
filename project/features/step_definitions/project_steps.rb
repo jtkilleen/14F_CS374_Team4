@@ -1,11 +1,24 @@
-Given(/^the username "([^"]*)" exists$/) do |input|
-	@input = input
+Dir[File.dirname(__FILE__) + '/models/*.rb'].each {|file| require file }
+Given(/^the username "([^"]*)"$/) do |inputs|
+	@username = input
 end
 
-When(/^the user logs in/) do
-	@output = true
+Given(/^I need to move a section with crn "([^"]*)"$/) do |input|
+	@section = input
 end
 
-Then(/^the user logged in should be true$/) do
-	@output.should == true
+Given(/^that section with crn "([^"]*)"$/) do |input|
+	@section = input
+end
+
+And(/^the password "([^"]*)"$/) do |input|
+	@password = input
+end
+
+When(/^the user logs in$/) do
+	@loginOutput = loginUser(@username, @password)
+end
+
+Then(/^the user should see "([^"]*)"$/) do |output|
+	@loginOutput.should == output
 end
