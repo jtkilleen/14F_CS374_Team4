@@ -1,8 +1,14 @@
 require 'rubygems'
 require 'bundler'
 require 'sinatra'
+require 'mongoid'
 Bundler.require
+require './index'
 
-require File.expand_path '../index.rb', __FILE__
+class Application
+	configure do
+		Mongoid.load! 'mongoid.yml'
+	end
+end
 
-run Sinatra::Application
+run Application.new
