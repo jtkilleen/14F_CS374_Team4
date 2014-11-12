@@ -103,6 +103,6 @@ class Application < Sinatra::Base
 	post '/classmover' do
 		section = Section.where(crn: params[:name]).first
 		puts section
-		"#{section[:name]}"
+		"#{section.crn}"
 	end
 end

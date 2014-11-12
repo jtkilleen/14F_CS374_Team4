@@ -4,3 +4,10 @@ development:
       database: scheduler
       hosts:
         - localhost:27017
+
+production:
+  sessions:
+    default:
+      database: scheduler
+      hosts:
+        - localhost:27017
