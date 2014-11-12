@@ -1,92 +1,97 @@
 <%= erb :include %>
-<script type="text/javascript">
-    var num_rows = 8;
-    var num_cols = 8;
-    var width = 10;
-    var theader = "<table id='table1' width = ' "+ width +"% '>";
-    var tbody = "";
-
-    for(var j = 0; j < num_cols; j++)
-    {
-      theader += "<th>header col "+ (j+1) +" </th>";
-    }
-
-    for(var i = 0; i < num_rows; i++)
-    {
-        tbody += "<tr>";
-        for(var j = 0; j < num_cols; j++)
-        {
-            tbody += "<td>";
-            tbody += "?";
-            tbody += "</td>"
-        }
-        tbody += "</tr><br />";
-    }
-    var tfooter = "</table>";
-    document.getElementById('wrapper').innerHTML = theader + tbody + tfooter;
-
-</script>
 <style>
-#table1
-{
-    border:solid 1px;
-    border-collapse:collapse;
-}
+    td:hover {
+        background-color: #FFFF99;
+    }
+    .cellClick {
+        background: rgb(100,200,300);
+    }
+    .cellClick:hover {
+        background:  rgb(100,200,300);
+    }
+    .tblCell {
+        max-height: 200px;
+        min-height: 100px;
+        max-width: 100px;
+    }
 
-#table1 th
-{
-    border:solid 1px;
-    border-collapse:collapse;
-}
-
-#table1 td
-{
-    border:solid 1px;
-    vertical-align:middle;
-}
+    
 </style>
-<h1>Home</h1>
-<form name="tableForm">
-    <label>Rows: <input type="text" name="rows" id="rows"/></label><br />
-    <label>Cols: <input type="text" name="cols" id="cols"/></label><br />
-    <label>Width (%): <input type="text" name="width" id="width"/></label><br />
-    <button type="button" onclick="insertTable()">Create Table</button>
-    <div id="wrapper"></div>
-</form>
-<div class="dropdown">
-  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-    Dropdown
-    <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-    <li role="presentation"><a role="menuitem" tabindex="-1" href="/tyler">Tyler</a></li>
-    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Is</a></li>
-    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Testing</a></li>
-    <li role="presentation" class="divider"></li>
-    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Our Project</a></li>
-  </ul>
-</div>
+
 <div class="container">
 	<div class="row">
-		<div class="col-md-offset-2 col-md-6">
-			<h2>Hi <%= @var%></h2>
-			<a href="https://www.reddit.com/">Hi</a>
-			<p>asdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asd</p>
-			<div class="row">
-				<div class="col-md-offset-3 col-md-6">
-					asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfads
-				</div>
-			</div>
-		</div>
-		<div class="col-md-4">
-			<h2>Hi <%= @var%></h2>
-			<a href="https://www.reddit.com/">Hi</a>
-			<p>asdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asdasdf asdf as dfa sdf as df as f as df as df asd</p>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-6">
-
-		</div>
+        <h1>Scheduler Home</h1>
+        <div class="col-md-10">
+            <div id="theTable">
+            </div>
+        </div>
 	</div>
 </div>
+<script type="text/javascript">
+
+var rows = 5; //here's your number of rows and columns
+var cols = 5;
+var table = $('<table class="table table-bordered">');
+var head = $('<thead>');
+var tr1 = $('<tr>');
+for (var col = 0; col < cols; col++)
+{
+    if(col == 0)
+    {
+        $('<td><div class="tblCell">Time</div></td>').appendTo(tr1);
+    }
+    else
+    {
+        $('<td><div class="tblCell">'+col+'</div></td>').appendTo(tr1);
+    }
+}
+tr1.appendTo(head);
+head.appendTo(table);
+var body = $('<tbody>');
+for(var r = 0; r < rows; r++)
+{
+    var tr = $('<tr>');
+    for (var c = 0; c < cols; c++)
+    {
+        if(c==0)
+        {
+            $('<td><div class="tblCell">'+r+'</div></td>').appendTo(tr);
+        }
+        else
+        {
+            $('<td><div class="tblCell">some value</div></td>').appendTo(tr); //fill in your cells with something meaningful here
+        }
+        
+    }
+    tr.appendTo(body);
+}
+body.appendTo(table)
+table.appendTo('#theTable');
+var old;
+var exists = false;
+$( function() {
+  $('td').click( function() {
+        if (!exists)
+        {
+            exists = true
+        }
+        else
+        {
+            old.removeClass("cellClick");
+        }
+        $(this).toggleClass("cellClick");
+        old = $(this);
+        text = old.text()
+        $.post("/classmover",
+        {
+          name:text,
+          city:"Duckburg"
+        },
+        function(data,status){
+          alert("Data: " + data + "\nStatus: " + status);
+        });
+  } );
+} );
+
+
+</script>

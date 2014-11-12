@@ -2,16 +2,16 @@ Feature: Login and Move Section
 
 	Integration Testing
 
-	This feature will deal with the features login and move section integrated together
+	This feature will deal with the features login and move section integrated together.
 
 	Scenario: Incorrect Login
-		Given the username "jeff"
+		Given the username "jeff@jeff.com"
 		And the password "killeen"
 		When the user logs in
 		Then the user should see "login failure"
 
 	Scenario: Correct Login and Move Section to Occupied Room
-		Given the username "jeff"
+		Given the username "jeff@jeff.com"
 		And the password "jeff"
 		When the user logs in
 		Then the user should see "login success"

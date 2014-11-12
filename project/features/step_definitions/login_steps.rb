@@ -4,16 +4,23 @@ Given(/^the username "([^"]*)"$/) do |input|
 	@username = input
 end
 
-And(/^the username does not exist$/) do
-	findUser(@username).should == nil
-end
-
 Given(/^I need to move a section with crn "([^"]*)"$/) do |input|
 	@section = input
 end
 
 Given(/^that section with crn "([^"]*)"$/) do |input|
 	@section = input
+end
+
+Given(/^a user is logged into the system$/) do
+	# Here I am spoofing a sesssion
+	@email = "jeff@jeff.com"
+	@password = "jeff"
+	loginUser(@email, @password).should == true
+end
+
+And(/^the username does not exist$/) do
+	findUser(@username).should == nil
 end
 
 And(/^the password "([^"]*)"$/) do |input|
@@ -24,9 +31,22 @@ When(/^the user logs in$/) do
 	@loginOutput = loginUser(@username, @password)
 end
 
+When(/^they log out$/) do
+	@email = ""
+	@password = ""
+end
+
 Then(/^the user should see "([^"]*)"$/) do |output|
 	success = if @loginOutput then "login success" else "login failure" end
 	success.should == output
+end
+
+Then(/^they should no longer be logged in$/) do
+	# When the user is logged in, they have their email saved in their session
+	# Once they logout, their session email should be set to ""
+	# This causes user to not exist in the database and thus must be logged out
+	user = User.where(username: @email).first
+	user.should == nil
 end
 ############################ Connecting to Website ########################
 Given(/^I am on the "(.*?)" page$/) do |input|

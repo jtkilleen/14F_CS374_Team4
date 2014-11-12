@@ -33,6 +33,16 @@ class Application < Sinatra::Base
 		classSearch(crn)
 	end
 
+	def randClass
+		r = rand(4-1) + 1
+		if r == 1 then "Freshman" elsif r==2 then "Sophomore" elsif r==3 then "Junior" else "Senior" end
+	end
+
+	def randMajor
+		r = rand(4-1) + 1
+		if r == 1 then "Compuer Science" elsif r==2 then "English" elsif r==3 then "Engineering" else "Underwater Basket Weaving" end
+	end
+
 	get '/' do
 		puts session[:username]
 		puts
@@ -48,10 +58,20 @@ class Application < Sinatra::Base
 		for i in 1..10
 			section = Section.new(
 					crn: "#{i}",
-					hours: "8",
+					hours: "8:00-8:50",
 					day: "MWF" )
 			section.save
+			student = Student.new(
+				acuid: "jtk#{i}b",
+				firstName: "asdf#{i}",
+				lastName: "fdsa#{i}",
+				classification: randClass,
+				major: randMajor)
+			student.save
+			student.sections << section
+			section.students << student
 		end
+
 		"hello"
 	end
 
@@ -78,5 +98,11 @@ class Application < Sinatra::Base
 		end
 		@errors = "Error, could not login"
 		erb :login
+	end
+
+	post '/classmover' do
+		section = Section.where(crn: params[:name]).first
+		puts section
+		"#{section[:name]}"
 	end
 end
