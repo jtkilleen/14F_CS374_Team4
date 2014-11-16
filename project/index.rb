@@ -1,7 +1,7 @@
-require 'csv'
 require 'sinatra'
 require_relative 'login.rb'
 require_relative 'classSearch.rb'
+require_relative 'populate.rb'
 Dir[File.dirname(__FILE__) + '/models/*.rb'].each {|file| require file }
 
 class Application < Sinatra::Base
@@ -9,7 +9,8 @@ class Application < Sinatra::Base
 
 	configure do 
 	 	Mongoid.load!("./mongoid.yml")
-	 	#Mongoid.purge!
+	 	Mongoid.purge!
+	 	populate("./Student_Data.csv")
 	end
 
 	# def loginUser(username, password)
@@ -40,13 +41,27 @@ class Application < Sinatra::Base
 
 	def randMajor
 		r = rand(4-1) + 1
-		if r == 1 then "Compuer Science" elsif r==2 then "English" elsif r==3 then "Engineering" else "Underwater Basket Weaving" end
+		if r == 1 then "Computer Science" elsif r==2 then "English" elsif r==3 then "Engineering" else "Underwater Basket Weaving" end
 	end
 
 	get '/' do
 		puts session[:username]
 		puts
-		@var = "jonathan"
+		buildingsections = []
+		mwfsect = []
+		trsect = []
+		buildingrooms = Room.where(building: "MBB").sort_by!{|x| x.roomnumber}
+		buildingrooms.each do |r|
+			buildingsections << r.sections.sort_by!{|x| x.beginTime}
+		end
+		@rooms = buildingrooms.to_json  ### Turn to JSON so it can be used in our javascript ###
+		buildingrooms.each do |r|
+			mwfsect << r.sections.sort_by!{|x| x.beginTime}.select{|y| y.day=~ /[MWF]/}
+			trsect << r.sections.sort_by!{|x| x.beginTime}.select{|y| y.day=~ /[TR]/}
+		end
+		@mwfsections = mwfsect.to_json
+		@trsections = trsect.to_json
+		@sections = buildingsections.to_json
 		erb :home
 	end
 
@@ -58,7 +73,8 @@ class Application < Sinatra::Base
 		for i in 1..10
 			section = Section.new(
 					crn: "#{i}",
-					hours: "8:00-8:50",
+					beginTime: "8:00",
+					endTime: "8:50",
 					day: "MWF" )
 			section.save
 			student = Student.new(
@@ -102,7 +118,6 @@ class Application < Sinatra::Base
 
 	post '/classmover' do
 		section = Section.where(crn: params[:name]).first
-		puts section
-		"#{section.crn}"
+		section.to_json
 	end
 end

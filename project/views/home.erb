@@ -1,13 +1,31 @@
 <%= erb :include %>
 <style>
+    td {
+        min-width: 100px;
+    }
     td:hover {
         background-color: #FFFF99;
     }
     .cellClick {
-        background: rgb(100,200,300);
+        background: rgb(100,200,255);
     }
     .cellClick:hover {
-        background:  rgb(100,200,300);
+        background:  rgb(100,200,255);
+    }
+    .timeClick {
+        background: rgb(255,100,255);
+    }
+    .timeClick:hover {
+        background:  rgb(255,100,255);
+    }
+    .roomClick{
+        background: rgb(100,100,255);
+    }
+    .roomClick:hover {
+        background:  rgb(100,100,255);
+    }
+    .conflict {
+        background: rgb(255,50,50);
     }
     .tblCell {
         max-height: 200px;
@@ -21,16 +39,25 @@
 <div class="container">
 	<div class="row">
         <h1>Scheduler Home</h1>
+        <p>Click on the class you want to move
+            and then click on the time and room number.
+        </p>
         <div class="col-md-10">
             <div id="theTable">
             </div>
         </div>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 
-var rows = 5; //here's your number of rows and columns
-var cols = 5;
+var rooms = <%= @rooms %>;
+var sections = <%= @sections %>;
+var mwfsections = <%= @mwfsections %>;
+var trsections = <%= @trsections %>;
+//rooms.sort(function (a,b) {return a.roomnumber.localeCompare(b.roomnumber)});
+var roomLength = rooms.length;
+var rows = 10; //here's your number of rows and columns
+var cols = roomLength + 1;
 var table = $('<table class="table table-bordered">');
 var head = $('<thead>');
 var tr1 = $('<tr>');
@@ -38,11 +65,12 @@ for (var col = 0; col < cols; col++)
 {
     if(col == 0)
     {
-        $('<td><div class="tblCell">Time</div></td>').appendTo(tr1);
+        $('<td><div class="tblCell"><div style="text-align: right">Room</div><div style="text-align: left; margin-top:50px">Time</div></div></td>').appendTo(tr1);
+        continue;
     }
     else
     {
-        $('<td><div class="tblCell">'+col+'</div></td>').appendTo(tr1);
+        $('<td class="building"><div class="tblCell">'+rooms[col-1].roomnumber+'</div></td>').appendTo(tr1);
     }
 }
 tr1.appendTo(head);
@@ -53,13 +81,27 @@ for(var r = 0; r < rows; r++)
     var tr = $('<tr>');
     for (var c = 0; c < cols; c++)
     {
-        if(c==0)
+        var beginTime = (8+r)+"00";
+        if(c===0)
         {
-            $('<td><div class="tblCell">'+r+'</div></td>').appendTo(tr);
+            $('<td class="time"><div class="tblCell">'+(8+r)+":00-"+(8+r)+":50"+'</div></td>').appendTo(tr);
         }
         else
         {
-            $('<td><div class="tblCell">some value</div></td>').appendTo(tr); //fill in your cells with something meaningful here
+            var section = null;
+             
+            if(mwfsections[c-1].length > 0 && mwfsections[c-1][0].beginTime===beginTime)
+            {
+                section = mwfsections[c-1][0];
+            }
+            if(section)
+            {
+                 $('<td><div class="tblCell">CRN:'+section.crn+'</div></td>').appendTo(tr);
+            }
+            else
+            {
+                $('<td><div class="tblCell"></div></td>').appendTo(tr); //fill in your cells with something meaningful here
+            }
         }
         
     }
@@ -68,30 +110,61 @@ for(var r = 0; r < rows; r++)
 body.appendTo(table)
 table.appendTo('#theTable');
 var old;
+var timeOld;
+var roomOld;
 var exists = false;
+var timeExists = false;
+var roomExists = false;
 $( function() {
   $('td').click( function() {
-        if (!exists)
+        if($(this).hasClass("building"))
         {
-            exists = true
+            if (!roomExists)
+            {
+                roomExists = true;
+            }
+            else
+            {
+                roomOld.removeClass("roomClick");
+            }
+            $(this).toggleClass("roomClick");
+            roomOld = $(this);
         }
-        else
+        else if($(this).hasClass("time"))
         {
-            old.removeClass("cellClick");
+            if (!timeExists)
+            {
+                timeExists = true;
+            }
+            else
+            {
+                timeOld.removeClass("timeClick");
+            }
+            $(this).toggleClass("timeClick");
+            timeOld = $(this);
         }
-        $(this).toggleClass("cellClick");
-        old = $(this);
-        text = old.text()
-        $.post("/classmover",
+        else if($(this).text().length > 0)
         {
-          name:text,
-          city:"Duckburg"
-        },
-        function(data,status){
-          alert("Data: " + data + "\nStatus: " + status);
-        });
+            if (!exists)
+            {
+                exists = true;
+            }
+            else
+            {
+                old.removeClass("cellClick");
+            }
+            $(this).toggleClass("cellClick");
+            old = $(this);
+            text = old.text();
+            $.post("/classmover",
+            {
+              name: text.substring(4),
+              city:"Duckburg"
+            },
+            function(data,status){
+              alert("Data: " + data + "\nStatus: " + status);
+            });
+        }
   } );
 } );
-
-
 </script>
