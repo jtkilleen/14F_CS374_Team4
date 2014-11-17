@@ -1,7 +1,7 @@
 <%= erb :include %>
 <style>
     td {
-        min-width: 100px;
+        font-size: .75em;
     }
     td:hover {
         background-color: #FFFF99;
@@ -27,6 +27,18 @@
     .conflict {
         background: rgb(255,50,50);
     }
+    .conflict1 {
+        background: yellow;
+    }
+    .conflict2 {
+        background: orange;
+    }
+    .conflict3 {
+        background: salmon;
+    }
+    .conflict4 {
+        background: red;
+    }
     .tblCell {
         max-height: 200px;
         min-height: 100px;
@@ -43,6 +55,9 @@
             and then click on the time and room number.
         </p>
         <div class="col-md-10">
+            <div id="conflicts">
+                Here are the conflicts: <br>
+         </div>
             <div id="theTable">
             </div>
         </div>
@@ -54,11 +69,12 @@ var rooms = <%= @rooms %>;
 var sections = <%= @sections %>;
 var mwfsections = <%= @mwfsections %>;
 var trsections = <%= @trsections %>;
+var mwfteachers = <%= @teachersMWF %>;
 //rooms.sort(function (a,b) {return a.roomnumber.localeCompare(b.roomnumber)});
 var roomLength = rooms.length;
 var rows = 10; //here's your number of rows and columns
 var cols = roomLength + 1;
-var table = $('<table class="table table-bordered">');
+var table = $('<table id = "table" class="table table-bordered">');
 var head = $('<thead>');
 var tr1 = $('<tr>');
 for (var col = 0; col < cols; col++)
@@ -89,14 +105,21 @@ for(var r = 0; r < rows; r++)
         else
         {
             var section = null;
-             
-            if(mwfsections[c-1].length > 0 && mwfsections[c-1][0].beginTime===beginTime)
+            var teacher = null;
+            if(mwfsections[c-1].length > 0 )//&& mwfsections[c-1][0].beginTime===beginTime)
             {
-                section = mwfsections[c-1][0];
+                for(var k = 0; k < mwfsections[c-1].length; k++)
+                {
+                    if(mwfsections[c-1][k].beginTime===beginTime)
+                    {
+                        section = mwfsections[c-1][k];
+                        teacher = mwfteachers[c-1][k];
+                    }
+                }
             }
             if(section)
             {
-                 $('<td><div class="tblCell">CRN:'+section.crn+'</div></td>').appendTo(tr);
+                 $('<td><div class="tblCell"><div class="crn">CRN:'+section.crn+'</div><br>Teacher:'+teacher.firstName+' '+teacher.lastName+'</div></td>').appendTo(tr);
             }
             else
             {
@@ -110,6 +133,9 @@ for(var r = 0; r < rows; r++)
 body.appendTo(table)
 table.appendTo('#theTable');
 var old;
+var text = null;
+var timeText = null;
+var roomText = null;
 var timeOld;
 var roomOld;
 var exists = false;
@@ -129,6 +155,7 @@ $( function() {
             }
             $(this).toggleClass("roomClick");
             roomOld = $(this);
+            roomText = $(this).text();
         }
         else if($(this).hasClass("time"))
         {
@@ -142,28 +169,119 @@ $( function() {
             }
             $(this).toggleClass("timeClick");
             timeOld = $(this);
+            timeText = $(this).text();
         }
-        else if($(this).text().length > 0)
+        else if(timeText && roomText)
         {
-            if (!exists)
+            if($(this).text().length > 0)
             {
-                exists = true;
+                if (!exists)
+                {
+                    exists = true;
+                }
+                else
+                {
+                    old.removeClass("cellClick");
+                }
+                $(this).toggleClass("cellClick");
+                old = $(this);
+                text = old.text();
+                $.post("/classmover",
+                {
+                  text: $(this).find(".crn").text().substring(4),
+                  time: timeText.split("-")[0],
+                  room: roomText
+                },
+                function(data,status){
+                  var dats = JSON.parse(data);
+                  if(dats['canMove'])
+                  {
+                    var table = document.getElementById('table');
+                    var found = false;
+                    var rowLength = table.rows.length;
+                    var roomIndex = 0;
+                    var timeIndex = 0;
+                    var conflicts = dats['conflicts'];
+                    $('#conflicts').empty();
+                    for(var i = 0; i < conflicts.length; i++)
+                    {
+                        var contest = conflicts[i].banner+ " " + conflicts[i].firstName + " " + conflicts[i].lastName + " ";
+                        if (conflicts[i].classification === "4")
+                        {
+                            contest += "Senior";
+                        }
+                        else if (conflicts[i].classification === "3")
+                        {
+                            contest += "Junior";
+                        }
+                        else if (conflicts[i].classification === "2")
+                        {
+                            contest += "Sophomore";
+                        }
+                        else if (conflicts[i].classification === "1")
+                        {
+                            contest += "Freshman";
+                        }
+                        else
+                        {
+                            contest += "Other";
+                        }
+                        $('#conflicts').append('<p class="conflict'+conflicts[i].classification+'">'+contest+'</p>');
+                    }
+                    $('#conflicts').text(function(){
+                            if(conflicts.length === 0)
+                            {
+                                return "There are no conflicts";
+                            }
+                        });
+
+                    /*for(var i=0; i<rowLength; i+=1){
+                      var row = table.rows[i];
+
+                      //your code goes here, looping over every row.
+                      //cells are accessed as easy
+
+                      var cellLength = row.cells.length;
+                      for(var y=0; y<cellLength; y+=1){
+                        var cell = row.cells[y];
+                        var cellText = $(cell).text();
+                        if(cellText === roomText)
+                        {
+                            roomIndex = y;
+                        }
+                        else if(cellText === timeText)
+                        {
+                            timeIndex = i;
+                        }
+
+                        //do something with every cell here
+                      }
+                      if (roomIndex != 0 && timeIndex != 0)
+                      {
+                        var newThing = table.rows[timeIndex].cells[roomIndex];
+                        var changedText = $(newThing).text();
+                        $(newThing).text(function()
+                        {
+                            return text;
+                        })
+                        $(newThing).toggleClass("cellClick");
+                        $(old).removeClass("cellClick");
+                        $(old).text(function(){
+                            return changedText;
+                        })
+                        $('#conflicts').text(function(){
+                            return text;
+                        })
+                        break;
+                      }
+                    }*/
+                  }
+                  else
+                  {
+                    alert("Error, cannot move class");
+                  }
+                });
             }
-            else
-            {
-                old.removeClass("cellClick");
-            }
-            $(this).toggleClass("cellClick");
-            old = $(this);
-            text = old.text();
-            $.post("/classmover",
-            {
-              name: text.substring(4),
-              city:"Duckburg"
-            },
-            function(data,status){
-              alert("Data: " + data + "\nStatus: " + status);
-            });
         }
   } );
 } );

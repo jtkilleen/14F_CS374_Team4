@@ -37,10 +37,21 @@ def populate(file)
 			sect = Section.where(crn: crn).first
 			t = Teacher.where(acuid: teacherId).first
 			r = Room.where(building: building, roomnumber: roomnumber).first
+			numberClass = "0"
+			if classification == "FR"
+				numberClass = "1"
+			elsif classification == "SO"
+				numberClass = "2"
+			elsif classification == "JR"
+				numberClass = "3"
+			elsif classification == "SR"
+				numberClass = "4"
+			end
+
 			if s.nil?
 				student = Student.new(
 					acuid: banner,
-					classification: classification,
+					classification: numberClass,
 					major: major,
 					firstName: firstName,
 					lastName: lastName
@@ -122,7 +133,7 @@ def populate(file)
 		end
 		i=i+1
 		puts i
-		if i == 250
+		if i == 1000
 			break
 		end
 	end

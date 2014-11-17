@@ -50,18 +50,28 @@ class Application < Sinatra::Base
 		buildingsections = []
 		mwfsect = []
 		trsect = []
-		buildingrooms = Room.where(building: "MBB").sort_by!{|x| x.roomnumber}
+		teacherMWFList = []
+		teacherTRList = []
+		buildingrooms = Room.where(building: "MBB").sort_by{|x| x.roomnumber.to_i}
 		buildingrooms.each do |r|
-			buildingsections << r.sections.sort_by!{|x| x.beginTime}
+			buildingsections << r.sections.sort_by{|x| x.beginTime.to_i}
 		end
 		@rooms = buildingrooms.to_json  ### Turn to JSON so it can be used in our javascript ###
 		buildingrooms.each do |r|
-			mwfsect << r.sections.sort_by!{|x| x.beginTime}.select{|y| y.day=~ /[MWF]/}
-			trsect << r.sections.sort_by!{|x| x.beginTime}.select{|y| y.day=~ /[TR]/}
+			mwfsect << r.sections.sort_by{|x| x.beginTime.to_i}.select{|y| y.day=~ /[MWF]/}
+			trsect << r.sections.sort_by{|x| x.beginTime.to_i}.select{|y| y.day=~ /[TR]/}
+		end
+		mwfsect.each do |m|
+			teacherMWFList << m.map{|n| n.teachers[0]}
+		end
+		trsect.each do |t|
+			teacherTRList << t.map{|n| n.teachers[0]}
 		end
 		@mwfsections = mwfsect.to_json
 		@trsections = trsect.to_json
 		@sections = buildingsections.to_json
+		@teachersMWF = teacherMWFList.to_json
+		@teachersTR = teacherTRList.to_json
 		erb :home
 	end
 
@@ -117,7 +127,38 @@ class Application < Sinatra::Base
 	end
 
 	post '/classmover' do
-		section = Section.where(crn: params[:name]).first
-		section.to_json
+		puts "#{params[:text]}"
+		@conflicts = []
+		section = Section.where(crn: params[:text]).first
+		teacher = section.teachers.first
+		room = Room.where(building: "MBB", roomnumber: params[:room]).first
+		time = params[:time].gsub(':','')
+		puts "the time is #{time}"
+		canMove = true
+		puts "#{room.roomnumber}"
+		room.sections.each do |s|
+			if s.beginTime == time
+				canMove = false
+			end
+		end
+
+		# teacher.sections.each do |t|
+		# 	if t.beginTime == time
+		# 		canMove = false
+		# 	end
+		# end
+
+		if canMove
+			students = section.students
+			students.each do |s|
+				s.sections.each do |sect|
+					if sect.beginTime == time and sect != section
+						@conflicts << Hash[firstName: s.firstName, lastName: s.lastName, banner: s.acuid, classification: s.classification]
+					end
+				end
+			end
+		end
+		@conflicts.sort_by!{|s| s[:classification]}.reverse!
+		Hash[canMove: canMove, conflicts: @conflicts].to_json
 	end
 end
