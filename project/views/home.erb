@@ -27,6 +27,9 @@
     .conflict {
         background: rgb(255,50,50);
     }
+    #conflicts {
+        text-decoration: bold;
+    }
     .conflict1 {
         background: yellow;
     }
@@ -50,12 +53,17 @@
 
 <div class="container">
 	<div class="row">
-        <h1>Scheduler Home</h1>
+        <h1><%= @buildingName %> Scheduler Home</h1>
         <p>Click on the room number and the time you want to move the class.  Then click on the class.
         </p>
         <div class="col-md-10">
-            <div id="conflicts">
-         </div>
+            <div class="row">
+                <div class="col-md-6">
+
+                    <div id="conflicts">
+                    </div>
+                 </div>
+            </div>
             <div id="theTable">
             </div>
         </div>
@@ -188,7 +196,8 @@ $( function() {
                 {
                   text: $(this).find(".crn").text().substring(4),
                   time: timeText.split("-")[0],
-                  room: roomText
+                  room: roomText,
+                  building: "<%= @buildingName %>"
                 },
                 function(data,status){
                   var dats = JSON.parse(data);

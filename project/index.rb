@@ -44,15 +44,15 @@ class Application < Sinatra::Base
 		if r == 1 then "Computer Science" elsif r==2 then "English" elsif r==3 then "Engineering" else "Underwater Basket Weaving" end
 	end
 
-	get '/' do
-		puts session[:username]
-		puts
+	get '/building/:building' do
+		@buildingName = params[:building]
+		if Room.where(building: @buildingName).first.nil? then status 404 end 
 		buildingsections = []
 		mwfsect = []
 		trsect = []
 		teacherMWFList = []
 		teacherTRList = []
-		buildingrooms = Room.where(building: "MBB").sort_by{|x| x.roomnumber.to_i}
+		buildingrooms = Room.where(building: @buildingName).sort_by{|x| x.roomnumber.to_i}
 		buildingrooms.each do |r|
 			buildingsections << r.sections.sort_by{|x| x.beginTime.to_i}
 		end
@@ -80,23 +80,6 @@ class Application < Sinatra::Base
 			username: "jeff@jeff.com",
 			password: "jeff")
 		thing.save
-		for i in 1..10
-			section = Section.new(
-					crn: "#{i}",
-					beginTime: "8:00",
-					endTime: "8:50",
-					day: "MWF" )
-			section.save
-			student = Student.new(
-				acuid: "jtk#{i}b",
-				firstName: "asdf#{i}",
-				lastName: "fdsa#{i}",
-				classification: randClass,
-				major: randMajor)
-			student.save
-			student.sections << section
-			section.students << student
-		end
 
 		"hello"
 	end
@@ -115,6 +98,11 @@ class Application < Sinatra::Base
 		erb :login
 	end
 
+	not_found do
+		status 404
+		erb :oops
+	end
+
 	post '/login' do
 		email = params[:email]
 		password = params[:password]
@@ -131,13 +119,20 @@ class Application < Sinatra::Base
 		@conflicts = []
 		section = Section.where(crn: params[:text]).first
 		teacher = section.teachers.first
-		room = Room.where(building: "MBB", roomnumber: params[:room]).first
+		room = Room.where(building: params[:building], roomnumber: params[:room]).first
 		time = params[:time].gsub(':','')
 		puts "the time is #{time}"
 		canMove = true
 		puts "#{room.roomnumber}"
+		days = section.day.split("")
 		room.sections.each do |s|
-			if s.beginTime == time
+			dayCheck = false
+			days.each do |d|
+				if s.day.include? d
+					dayCheck = true
+				end
+			end
+			if s.beginTime == time  && dayCheck
 				canMove = false
 			end
 		end
@@ -152,7 +147,20 @@ class Application < Sinatra::Base
 			students = section.students
 			students.each do |s|
 				s.sections.each do |sect|
-					if sect.beginTime == time and sect != section
+					dayCheck = false
+					days.each do |d|
+						if sect.day.include? d
+							dayCheck = true
+						end
+					end
+					if sect.beginTime == time and sect != section and dayCheck
+						conflictExists = false
+						@conflicts.each do |c|
+							if c[:banner] == s.acuid
+								conflictExists = true
+							end
+						end
+						if conflictExists then next end
 						@conflicts << Hash[firstName: s.firstName, lastName: s.lastName, banner: s.acuid, classification: s.classification]
 					end
 				end
