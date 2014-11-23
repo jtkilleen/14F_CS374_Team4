@@ -25,12 +25,12 @@ def populate(file)
 			roomnumber = row['Room Code1']
 			next if roomnumber.nil?
 			##### COURSE ATTRIBUTES #####
-			courseName = row['Subject Code'] + row['Course Number']
+			courseName = row['Subject Code'] + " " +row['Course Number']
 			courseDepartment = row['Subject Code']
 			##### SECTION/COURSE ATTRIBUTES #####
 			crn = row['CRN']
 			beginTime = if row['Begin Time 1'][0] == "0" then row['Begin Time 1'][1..-1] else row['Begin Time 1'] end
-			endTime = row['End Time1']
+			endTime = if row['End Time1'][0] == "0" then row['End Time1'][1..-1] else row['End Time1'] end
 			days = "#{row['Monday Ind1']}#{row['Tuesday Ind1']}#{row['Wednesday Ind1']}#{row['Thursday Ind1']}#{row['Friday Ind1']}"
 			##### DATABASE STUFF #####
 			s = Student.where(acuid: banner).first

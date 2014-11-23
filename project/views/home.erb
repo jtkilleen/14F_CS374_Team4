@@ -51,9 +51,11 @@
     
 </style>
 
+<%= erb :nav %>
+
 <div class="container">
 	<div class="row">
-        <h1><%= @buildingName %> Scheduler Home</h1>
+        <h1><%= @buildingName %> Scheduler</h1>
         <p>Click on the room number and the time you want to move the class.  Then click on the class.
         </p>
         <div class="col-md-10">
@@ -76,6 +78,8 @@ var sections = <%= @sections %>;
 var mwfsections = <%= @mwfsections %>;
 var trsections = <%= @trsections %>;
 var mwfteachers = <%= @teachersMWF %>;
+var mwfcourses = <%= @mwfcourses %>;
+var trcourses = <%= @trcourses %>;
 //rooms.sort(function (a,b) {return a.roomnumber.localeCompare(b.roomnumber)});
 var roomLength = rooms.length;
 var rows = 10; //here's your number of rows and columns
@@ -119,13 +123,14 @@ for(var r = 0; r < rows; r++)
                     if(mwfsections[c-1][k].beginTime===beginTime)
                     {
                         section = mwfsections[c-1][k];
+                        course = mwfcourses[c-1][k];
                         teacher = mwfteachers[c-1][k];
                     }
                 }
             }
             if(section)
             {
-                 $('<td><div class="tblCell"><div class="crn">CRN:'+section.crn+'</div><br>Teacher:'+teacher.firstName+' '+teacher.lastName+'</div></td>').appendTo(tr);
+                 $('<td><div class="tblCell">'+course.name+'<br><div class="crn">CRN:'+section.crn+'</div><br>Teacher:'+teacher.firstName+' '+teacher.lastName+'</div></td>').appendTo(tr);
             }
             else
             {
@@ -212,7 +217,7 @@ $( function() {
                     $('#conflicts').empty();
                     for(var i = 0; i < conflicts.length; i++)
                     {
-                        var contest = conflicts[i].banner+ " " + conflicts[i].firstName + " " + conflicts[i].lastName + " ";
+                        var contest = "<a href='/student/"+conflicts[i].banner+ "''>"+conflicts[i].banner+"</a> " + conflicts[i].firstName + " " + conflicts[i].lastName + " ";
                         if (conflicts[i].classification === "4")
                         {
                             contest += "Senior";

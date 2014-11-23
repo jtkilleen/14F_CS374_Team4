@@ -30,18 +30,33 @@ class Application < Sinatra::Base
 	# 	return section
 	# end
 
-	def moveSection(crn, time)
-		classSearch(crn)
+	# def moveSection(crn, time)
+	# 	classSearch(crn)
+	# end
+
+	# def randClass
+	# 	r = rand(4-1) + 1
+	# 	if r == 1 then "Freshman" elsif r==2 then "Sophomore" elsif r==3 then "Junior" else "Senior" end
+	# end
+
+	# def randMajor
+	# 	r = rand(4-1) + 1
+	# 	if r == 1 then "Computer Science" elsif r==2 then "English" elsif r==3 then "Engineering" else "Underwater Basket Weaving" end
+	# end
+
+	get '/' do
+		@buildings = Room.distinct(:building)
+		erb :welcome
 	end
 
-	def randClass
-		r = rand(4-1) + 1
-		if r == 1 then "Freshman" elsif r==2 then "Sophomore" elsif r==3 then "Junior" else "Senior" end
-	end
-
-	def randMajor
-		r = rand(4-1) + 1
-		if r == 1 then "Computer Science" elsif r==2 then "English" elsif r==3 then "Engineering" else "Underwater Basket Weaving" end
+	get '/student/:crn' do
+		banner = params[:crn]
+		stud = Student.where(acuid: banner).first
+		if stud.nil? then raise 404 end
+		@mwfsections = stud.sections.sort_by{|x| x.beginTime.to_i}.select{|y| y.day=~ /[MWF]/}
+		@trsections = stud.sections.sort_by{|x| x.beginTime.to_i}.select{|y| y.day=~ /[TR]/}
+		@student = stud
+		erb :student
 	end
 
 	get '/building/:building' do
@@ -49,7 +64,9 @@ class Application < Sinatra::Base
 		if Room.where(building: @buildingName).first.nil? then status 404 end 
 		buildingsections = []
 		mwfsect = []
+		mwfcourse = []
 		trsect = []
+		trcourse = []
 		teacherMWFList = []
 		teacherTRList = []
 		buildingrooms = Room.where(building: @buildingName).sort_by{|x| x.roomnumber.to_i}
@@ -62,13 +79,17 @@ class Application < Sinatra::Base
 			trsect << r.sections.sort_by{|x| x.beginTime.to_i}.select{|y| y.day=~ /[TR]/}
 		end
 		mwfsect.each do |m|
+			mwfcourse << m.map{|n| n.courses[0]}
 			teacherMWFList << m.map{|n| n.teachers[0]}
 		end
 		trsect.each do |t|
+			trcourse << t.map{|n| n.courses[0]}
 			teacherTRList << t.map{|n| n.teachers[0]}
 		end
 		@mwfsections = mwfsect.to_json
 		@trsections = trsect.to_json
+		@mwfcourses = mwfcourse.to_json
+		@trcourses = trcourse.to_json
 		@sections = buildingsections.to_json
 		@teachersMWF = teacherMWFList.to_json
 		@teachersTR = teacherTRList.to_json
@@ -136,12 +157,6 @@ class Application < Sinatra::Base
 				canMove = false
 			end
 		end
-
-		# teacher.sections.each do |t|
-		# 	if t.beginTime == time
-		# 		canMove = false
-		# 	end
-		# end
 
 		if canMove
 			students = section.students

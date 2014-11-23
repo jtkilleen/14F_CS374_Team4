@@ -1,0 +1,31 @@
+<%= erb :include %>
+<%= erb :nav %>
+<div class="container">
+	<div class="row">
+		<div class="col-md-6">
+			<h2>Student Information</h2>
+			<p>Name: <%=@student[:firstName]%> <%= @student[:lastName]%></p>
+			<p>Banner: <%= @student[:acuid]%></p>
+			<p>Major: <%= @student[:major]%></p>
+			<p>Classification: 
+				<% if @student[:classification] == 4%>
+					Senior
+				<% elsif @student[:classification] == 3%>
+					Junior
+				<% elsif @student[:classification] == 2%>
+					Sophomore
+				<% elsif @student[:classification] == 1%>
+					Freshman
+				<% else %>
+					Other
+				<% end %></p>
+			<p>MWF Classes<br><% for s in @mwfsections %>
+			CRN: <%=s[:crn]%>, Begin Time: <%= s[:beginTime]%>, End Time: <%= s[:endTime]%><br>
+			<% end %></p>
+
+			<p>TR Classes<br><% for s in @trsections %>
+			CRN: <%=s[:crn]%>, Begin Time: <%= s[:beginTime]%>, End Time: <%= s[:endTime]%><br>
+			<% end %></p>
+		</div>
+	</div>
+</div>
