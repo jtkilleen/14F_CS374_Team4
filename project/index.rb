@@ -9,8 +9,8 @@ class Application < Sinatra::Base
 
 	configure do 
 	 	Mongoid.load!("./mongoid.yml")
-	 	#Mongoid.purge!
-	 	#populate("./Student_Data.csv")
+	 	Mongoid.purge!
+	 	populate("./Student_Data.csv")
 	end
 
 	# def loginUser(username, password)

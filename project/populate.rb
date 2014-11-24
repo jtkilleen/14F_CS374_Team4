@@ -6,9 +6,9 @@ def populate(file)
 	i = 2
 	CSV.foreach(file, headers:true, :encoding => 'windows-1251:utf-8') do |row|
 		begin
-			if row['Bldg Code1'] != "MBB"
-				next
-			end
+			# if row['Bldg Code1'] != "MBB"
+			# 	next
+			# end
 			##### STUDENT ATTRIBUTES #####
 			banner = row['Banner ID']
 			puts "#{banner}" if i == 1872
@@ -134,7 +134,7 @@ def populate(file)
 		rescue
 			next
 		end
-		if i == 1000 then break end
+		# if i == 1000 then break end
 		puts i
 	end
 end
