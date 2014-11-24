@@ -4,6 +4,9 @@ Dir[File.dirname(__FILE__) + '/models/*.rb'].each {|file| require file }
 Given(/^I am on the "(.*?)" building page$/) do |building|
 	@building = building
 end
+# Given(/^I am on the "(.*?)" building page$/) do |building|
+# 	visit '/'+building
+# end
 
 Given(/^I have a section with crn "(.*?)"$/) do |crn|
 	@crn = crn
