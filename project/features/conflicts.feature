@@ -1,19 +1,8 @@
 Feature: Conflicts
 
 	Scenario: Move Section without Conflicts in Student Schedule
-		Given that section with crn 1 needs to be moved
-		When I move the class to 1:30
-		Then there should be no conflicts in any student's schedule
-
-	Scenario: Move Section with Conflicts in Student Schedule
-		Given that section with crn 1 needs to be moved
-		When I move the class to 8:00
-		Then there should be a conflict with the student jeff
-
-	Scenario: Move Section that conflicts with Senior's Schedule
-		Given that section with crn 1 needs to be moved
-		And jon is taking crn 1
-		And jon is a Senior
-		When I move the class to 9:30
-		Then the class should not be moved
-
+		Given I am on the "MBB" building page
+		When I move a class with crn "10730" to room "118" and time "8:00-8:50"
+		Then it should say "class can move"
+		And it should state that "There are conflicts"
+		And a student with crn "000515364" should have a conflict

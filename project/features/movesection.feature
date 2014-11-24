@@ -7,23 +7,20 @@ Feature: Move Section
 		Given I am on the "MBB" building page
 		When I move a class with crn "10048" to room "118" and time "8:00-8:50"
 		Then it should say "class can move"
+		And it should state that "There are no conflicts"
 
 	Scenario: Move Section to Occupied Room
 		Given I am on the "MBB" building page
-		Given I need to move section with crn "1" to "MBB 316" at "8:00"
-		And there is a class already in session
-		When I move the class
-		Then it should say "the room is already occupied"
+		When I move a class with crn "10048" to room "117" and time "8:00-8:50"
+		Then it should say "cannot move class"
 
 	Scenario: Move Section to Nonexisting Room
 		Given I am on the "MBB" building page
-		Given I need to move section with crn "1" to "MBB 666" at "8:00"
-		And the room does not exist
-		When I move the class
-		Then it should say "the room does not exist"
+		When I move a class with crn "10048" to room "666" and time "8:00-8:50"
+		Then it should say "cannot move class"
 
-	Scenario:  Move Section to Unavailable Time
+	Scenario: Section Moved with Conflicts
 		Given I am on the "MBB" building page
-		Given I need to move section with crn "1" to "11:00"
-		When I move the class
-		Then it should say "classes are not allowed to be moved to this time"
+		When I move a class with crn "10730" to room "118" and time "8:00-8:50"
+		Then it should say "class can move"
+		And it should state that "There are conflicts"
