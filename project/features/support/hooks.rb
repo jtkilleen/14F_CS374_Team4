@@ -18,9 +18,9 @@ Before do
 			username: "jeff@jeff.com",
 			password: "jeff")
 		thing.save
-	populate('../../Student_Data.csv')
+	#populate('../../Student_Data.csv')
 end
 
 After do
-	Mongoid.purge!
+	#Mongoid.purge!
 end

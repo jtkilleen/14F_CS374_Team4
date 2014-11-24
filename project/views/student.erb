@@ -8,13 +8,13 @@
 			<p>Banner: <%= @student[:acuid]%></p>
 			<p>Major: <%= @student[:major]%></p>
 			<p>Classification: 
-				<% if @student[:classification] == 4%>
+				<% if @student[:classification] == "4"%>
 					Senior
-				<% elsif @student[:classification] == 3%>
+				<% elsif @student[:classification] == "3"%>
 					Junior
-				<% elsif @student[:classification] == 2%>
+				<% elsif @student[:classification] == "2"%>
 					Sophomore
-				<% elsif @student[:classification] == 1%>
+				<% elsif @student[:classification] == "1"%>
 					Freshman
 				<% else %>
 					Other
