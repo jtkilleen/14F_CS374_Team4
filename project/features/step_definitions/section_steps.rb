@@ -4,6 +4,9 @@ Dir[File.dirname(__FILE__) + '/models/*.rb'].each {|file| require file }
 Given(/^I am on the "(.*?)" building page$/) do |building|
 	@building = building
 end
+# Given(/^I am on the "(.*?)" building page$/) do |building|
+# 	visit '/'+building
+# end
 
 When(/^I move a class with crn "(.*?)" to room "(.*?)" and time "(.*?)"$/) do |crn, room, time|
 	classSearch(crn, room, time)
@@ -31,3 +34,5 @@ And(/^a student with crn "(.*?)" should have a conflict$/) do |student|
 	end
 	exists.should == true
 end
+
+
